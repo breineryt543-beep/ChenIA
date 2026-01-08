@@ -1,72 +1,83 @@
 export default {
   async fetch(request, env) {
-
-    // Cuando el navegador envía un mensaje
     if (request.method === "POST") {
-      const { message } = await request.json();
+      const { mensaje } = await request.json();
 
-      const aiResponse = await env.AI.run(
-        "@cf/meta/llama-3-8b-instruct",
-        {
-          messages: [
-            { role: "system", content: "Eres una IA amable que responde en español." },
-            { role: "user", content: message }
-          ]
-        }
-      );
+      const respuesta = "Recibí tu mensaje: " + mensaje;
 
-      return new Response(
-        JSON.stringify({ reply: aiResponse.response }),
-        { headers: { "Content-Type": "application/json" } }
-      );
+      return new Response(JSON.stringify({ respuesta }), {
+        headers: { "Content-Type": "application/json" }
+      });
     }
 
-    // Página web (HTML + CSS + JS)
     return new Response(`
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
-<title>Mi IA</title>
-<style>
-body { font-family: Arial; background:#111; color:#fff; text-align:center; }
-#chat { max-width:600px; margin:auto; }
-#messages { height:300px; overflow:auto; border:1px solid #444; padding:10px; }
-input, button { padding:10px; margin-top:5px; }
-</style>
+  <meta charset="UTF-8">
+  <title>Chen IA</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #111;
+      color: #fff;
+    }
+    .chat {
+      max-width: 500px;
+      margin: 40px auto;
+    }
+    input, button {
+      padding: 10px;
+      width: 100%;
+      margin-top: 5px;
+      border: none;
+      border-radius: 4px;
+    }
+    button {
+      background: #00ffcc;
+      cursor: pointer;
+    }
+    #log {
+      background: #222;
+      padding: 10px;
+      min-height: 200px;
+      border-radius: 4px;
+    }
+  </style>
 </head>
 <body>
-<h1>Bienvenido a mi IA</h1>
-<div id="chat">
-  <div id="messages"></div>
-  <input id="msg" placeholder="Escribe tu mensaje..." />
-  <button onclick="send()">Enviar</button>
-</div>
+  <div class="chat">
+    <h2>🤖 Chen IA</h2>
+    <div id="log"></div>
+    <input id="msg" placeholder="Escribe algo..." />
+    <button onclick="enviar()">Enviar</button>
+  </div>
 
-<script>
-async function send() {
-  const input = document.getElementById("msg");
-  const messages = document.getElementById("messages");
-  const text = input.value;
-  if (!text) return;
+  <script>
+    async function enviar() {
+      const input = document.getElementById("msg");
+      const log = document.getElementById("log");
 
-  messages.innerHTML += "<p><b>Tú:</b> " + text + "</p>";
-  input.value = "";
+      const texto = input.value;
+      if (!texto) return;
 
-  const res = await fetch("/", {
-    method: "POST",
-    headers: {"Content-Type":"application/json"},
-    body: JSON.stringify({ message: text })
-  });
+      log.innerHTML += "<p><b>Tú:</b> " + texto + "</p>";
+      input.value = "";
 
-  const data = await res.json();
-  messages.innerHTML += "<p><b>IA:</b> " + data.reply + "</p>";
-}
-</script>
+      const res = await fetch("/", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ mensaje: texto })
+      });
+
+      const data = await res.json();
+      log.innerHTML += "<p><b>Chen IA:</b> " + data.respuesta + "</p>";
+    }
+  </script>
 </body>
 </html>
     `, {
       headers: { "Content-Type": "text/html" }
     });
   }
-}
+};
