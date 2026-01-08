@@ -1,18 +1,17 @@
 export default {
   async fetch(request, env) {
 
-    // --- PETICIÓN DEL CHAT ---
+    // ===== CHAT CON IA REAL =====
     if (request.method === "POST") {
       const { mensaje } = await request.json();
 
-      // Llamada a Workers AI (modelo de texto)
       const aiResponse = await env.AI.run(
         "@cf/meta/llama-3-8b-instruct",
         {
           messages: [
             {
               role: "system",
-              content: "Eres Chen IA, un asistente amable y claro que responde en español."
+              content: "Eres Chen IA, un asistente amable, claro y respondes en español."
             },
             {
               role: "user",
@@ -23,14 +22,12 @@ export default {
       );
 
       return new Response(
-        JSON.stringify({
-          respuesta: aiResponse.response
-        }),
+        JSON.stringify({ respuesta: aiResponse.response }),
         { headers: { "Content-Type": "application/json" } }
       );
     }
 
-    // --- HTML ---
+    // ===== HTML =====
     return new Response(`
 <!DOCTYPE html>
 <html lang="es">
@@ -39,35 +36,82 @@ export default {
   <title>Chen IA</title>
   <style>
     body {
+      margin: 0;
       font-family: Arial, sans-serif;
-      background: #0f172a;
-      color: #e5e7eb;
+      background-image: url("https://wallpapercave.com/wp/wp10233889.jpg");
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      background-attachment: fixed;
+      color: #fff;
     }
+
     .chat {
       max-width: 520px;
-      margin: 40px auto;
-      background: #020617;
-      padding: 20px;
-      border-radius: 8px;
+      height: 90vh;
+      margin: 5vh auto;
+      background: rgba(0,0,0,0.6);
+      backdrop-filter: blur(6px);
+      border-radius: 12px;
+      display: flex;
+      flex-direction: column;
+      padding: 15px;
     }
-    input, button {
-      width: 100%;
-      padding: 10px;
-      margin-top: 6px;
-      border-radius: 4px;
-      border: none;
+
+    h2 {
+      text-align: center;
+      margin: 5px 0 10px 0;
     }
-    button {
-      background: #22c55e;
-      cursor: pointer;
-      font-weight: bold;
-    }
+
     #log {
-      background: #020617;
-      padding: 10px;
-      min-height: 220px;
-      border-radius: 4px;
+      flex: 1;
       overflow-y: auto;
+      padding: 10px;
+    }
+
+    .msg {
+      max-width: 75%;
+      padding: 10px 14px;
+      margin-bottom: 10px;
+      border-radius: 14px;
+      line-height: 1.4;
+      word-wrap: break-word;
+    }
+
+    .user {
+      background: #22c55e;
+      color: #000;
+      margin-left: auto;
+      border-bottom-right-radius: 4px;
+    }
+
+    .bot {
+      background: #1f2937;
+      color: #fff;
+      margin-right: auto;
+      border-bottom-left-radius: 4px;
+    }
+
+    .input-area {
+      display: flex;
+      gap: 6px;
+    }
+
+    input {
+      flex: 1;
+      padding: 10px;
+      border-radius: 20px;
+      border: none;
+      outline: none;
+    }
+
+    button {
+      padding: 10px 16px;
+      border-radius: 20px;
+      border: none;
+      background: #22c55e;
+      font-weight: bold;
+      cursor: pointer;
     }
   </style>
 </head>
@@ -75,20 +119,27 @@ export default {
   <div class="chat">
     <h2>🤖 Chen IA</h2>
     <div id="log"></div>
-    <input id="msg" placeholder="Escribe tu mensaje..." />
-    <button onclick="enviar()">Enviar</button>
+
+    <div class="input-area">
+      <input id="msg" placeholder="Escribe un mensaje..." />
+      <button onclick="enviar()">➤</button>
+    </div>
   </div>
 
   <script>
     async function enviar() {
       const input = document.getElementById("msg");
       const log = document.getElementById("log");
-
       const texto = input.value.trim();
       if (!texto) return;
 
-      log.innerHTML += "<p><b>Tú:</b> " + texto + "</p>";
+      const userMsg = document.createElement("div");
+      userMsg.className = "msg user";
+      userMsg.textContent = texto;
+      log.appendChild(userMsg);
+
       input.value = "";
+      log.scrollTop = log.scrollHeight;
 
       const res = await fetch("/", {
         method: "POST",
@@ -97,7 +148,12 @@ export default {
       });
 
       const data = await res.json();
-      log.innerHTML += "<p><b>Chen IA:</b> " + data.respuesta + "</p>";
+
+      const botMsg = document.createElement("div");
+      botMsg.className = "msg bot";
+      botMsg.textContent = data.respuesta;
+      log.appendChild(botMsg);
+
       log.scrollTop = log.scrollHeight;
     }
   </script>
