@@ -1,9 +1,21 @@
 export default {
-  async fetch(request) {
+  async fetch(request, env) {
+
     if (request.method === "POST") {
-      const data = await request.json();
+      const { message } = await request.json();
+
+      const aiResponse = await env.AI.run(
+        "@cf/meta/llama-3-8b-instruct",
+        {
+          messages: [
+            { role: "system", content: "Eres ChenIA, un asistente amable que habla español." },
+            { role: "user", content: message }
+          ]
+        }
+      );
+
       return new Response(
-        JSON.stringify({ reply: "Recibí tu mensaje: " + data.message }),
+        JSON.stringify({ reply: aiResponse.response }),
         { headers: { "Content-Type": "application/json" } }
       );
     }
@@ -12,11 +24,12 @@ export default {
 <!DOCTYPE html>
 <html>
 <head>
-  <title>ChenIA Chat</title>
+  <meta charset="UTF-8">
+  <title>ChenIA</title>
   <style>
     body { font-family: Arial; background:#111; color:#fff; }
     #chat { max-width:600px; margin:auto; }
-    input, button { padding:10px; }
+    input, button { padding:10px; margin-top:5px; }
   </style>
 </head>
 <body>
