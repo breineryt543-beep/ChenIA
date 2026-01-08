@@ -1,14 +1,14 @@
 export default {
   async fetch(request, env) {
 
-    // ---- DESACTIVAR CACHÉ ----
+    // Evitar caché
     const headersNoCache = {
       "Cache-Control": "no-store, no-cache, must-revalidate, max-age=0",
       "Pragma": "no-cache",
       "Expires": "0"
     };
 
-    // ---- CHAT ----
+    // Chat IA
     if (request.method === "POST") {
       const { mensaje } = await request.json();
 
@@ -16,7 +16,7 @@ export default {
         "@cf/meta/llama-3-8b-instruct",
         {
           messages: [
-            { role: "system", content: "Eres Chen IA, respondes en español." },
+            { role: "system", content: "Eres Chen IA y respondes en español." },
             { role: "user", content: mensaje }
           ]
         }
@@ -33,7 +33,7 @@ export default {
       );
     }
 
-    // ---- HTML ----
+    // Página HTML
     return new Response(`
 <!DOCTYPE html>
 <html lang="es">
@@ -46,34 +46,40 @@ export default {
 body {
   margin: 0;
   font-family: system-ui, sans-serif;
-  background: #075e54;
+  background-image: url("https://i.imgur.com/zLkG9hX.jpg");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  color: #fff;
 }
 
+/* Contenedor general del chat */
 .chat {
   height: 100vh;
   display: flex;
   flex-direction: column;
   max-width: 500px;
   margin: auto;
-  background: #0b141a;
+  background: rgba(0, 0, 0, 0.4);
 }
 
+/* Cabecera */
 .header {
   background: #202c33;
-  color: white;
+  color: #fff;
   padding: 12px;
   text-align: center;
   font-weight: bold;
 }
 
+/* Área de mensajes */
 #log {
   flex: 1;
   padding: 10px;
   overflow-y: auto;
-  background-image: url("https://imgur.com/zLkG9hX");
-  background-size: cover;
 }
 
+/* Burbujas */
 .bubble {
   max-width: 75%;
   padding: 10px 14px;
@@ -81,38 +87,36 @@ body {
   border-radius: 12px;
   word-wrap: break-word;
 }
-
 .user {
-  background: #005c4b;
-  color: white;
+  background: #25d366;
+  color: #000;
   margin-left: auto;
 }
-
 .bot {
   background: #202c33;
-  color: white;
+  color: #fff;
   margin-right: auto;
 }
 
+/* Área de entrada */
 .input {
   display: flex;
   padding: 8px;
   background: #202c33;
   gap: 6px;
 }
-
 input {
   flex: 1;
   border-radius: 20px;
   border: none;
   padding: 10px;
+  outline: none;
 }
-
 button {
   border: none;
   background: #00a884;
   border-radius: 20px;
-  padding: 10px 16px;
+  padding: 10px 14px;
   cursor: pointer;
 }
 </style>
@@ -120,8 +124,9 @@ button {
 
 <body>
 <div class="chat">
-  <div class="header">🚨 CHEN IA NUEVA 🚨</div>
+  <div class="header">💬 Chen IA</div>
   <div id="log"></div>
+
   <div class="input">
     <input id="msg" placeholder="Escribe un mensaje…" />
     <button onclick="enviar()">➤</button>
@@ -143,6 +148,12 @@ async function enviar() {
   input.value = "";
   log.scrollTop = log.scrollHeight;
 
+  const typing = document.createElement("div");
+  typing.className = "bubble bot";
+  typing.textContent = "Chen IA está escribiendo…";
+  log.appendChild(typing);
+  log.scrollTop = log.scrollHeight;
+
   const res = await fetch("/", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -150,13 +161,20 @@ async function enviar() {
   });
 
   const data = await res.json();
+  typing.remove();
 
   const b = document.createElement("div");
   b.className = "bubble bot";
   b.textContent = data.respuesta;
   log.appendChild(b);
+
   log.scrollTop = log.scrollHeight;
 }
+
+// Enviar con Enter
+document.getElementById("msg").addEventListener("keydown", e => {
+  if (e.key === "Enter") enviar();
+});
 </script>
 </body>
 </html>
