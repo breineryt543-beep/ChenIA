@@ -8,7 +8,7 @@ export default {
         "@cf/meta/llama-3-8b-instruct",
         {
           messages: [
-            { role: "system", content: "Eres ChenIA, un asistente amable que habla español." },
+            { role: "system", content: "Eres ChenIA, un asistente amigable en español." },
             { role: "user", content: message }
           ]
         }
@@ -26,19 +26,12 @@ export default {
 <head>
   <meta charset="UTF-8">
   <title>ChenIA</title>
-  <style>
-    body { font-family: Arial; background:#111; color:#fff; }
-    #chat { max-width:600px; margin:auto; }
-    input, button { padding:10px; margin-top:5px; }
-  </style>
 </head>
 <body>
-  <div id="chat">
-    <h2>ChenIA 🤖</h2>
-    <div id="messages"></div>
-    <input id="msg" placeholder="Escribe algo..." />
-    <button onclick="send()">Enviar</button>
-  </div>
+  <h2>ChenIA 🤖</h2>
+  <input id="msg" placeholder="Escribe algo..." />
+  <button onclick="send()">Enviar</button>
+  <div id="out"></div>
 
   <script>
     async function send() {
@@ -49,7 +42,7 @@ export default {
         body: JSON.stringify({ message: input.value })
       });
       const data = await res.json();
-      document.getElementById("messages").innerHTML += 
+      document.getElementById("out").innerHTML += 
         "<p><b>Tú:</b> " + input.value + "</p>" +
         "<p><b>ChenIA:</b> " + data.reply + "</p>";
       input.value = "";
