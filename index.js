@@ -16,7 +16,7 @@ export default {
         "@cf/meta/llama-3-8b-instruct",
         {
           messages: [
-            { role: "system", content: "Eres Chen IA y respondes en español." },
+            { role: "system", content: "Eres Chen IA, respondes en español de forma clara y amigable." },
             { role: "user", content: mensaje }
           ]
         }
@@ -33,7 +33,7 @@ export default {
       );
     }
 
-    // Página HTML
+    // HTML
     return new Response(`
 <!DOCTYPE html>
 <html lang="es">
@@ -43,80 +43,110 @@ export default {
 <title>Chen IA</title>
 
 <style>
+/* Fondo tipo WhatsApp */
 body {
   margin: 0;
-  font-family: system-ui, sans-serif;
-  background-image: url("https://i.imgur.com/zLkG9hX.jpg");
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-  color: #fff;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  background: linear-gradient(
+    135deg,
+    #0b141a 0%,
+    #111b21 40%,
+    #202c33 100%
+  );
 }
 
-/* Contenedor general del chat */
+/* Contenedor principal */
 .chat {
   height: 100vh;
-  display: flex;
-  flex-direction: column;
   max-width: 500px;
   margin: auto;
-  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+  flex-direction: column;
+  background: #0b141a;
 }
 
-/* Cabecera */
+/* Header */
 .header {
   background: #202c33;
-  color: #fff;
+  color: #e9edef;
   padding: 12px;
   text-align: center;
   font-weight: bold;
+  letter-spacing: 0.5px;
 }
 
 /* Área de mensajes */
 #log {
   flex: 1;
-  padding: 10px;
+  padding: 12px;
   overflow-y: auto;
+  background: linear-gradient(
+    180deg,
+    #0b141a 0%,
+    #111b21 100%
+  );
 }
 
 /* Burbujas */
 .bubble {
-  max-width: 75%;
+  max-width: 78%;
   padding: 10px 14px;
   margin-bottom: 8px;
   border-radius: 12px;
+  line-height: 1.4;
   word-wrap: break-word;
+  animation: fadeIn 0.2s ease-in;
 }
+
 .user {
-  background: #25d366;
-  color: #000;
+  background: #005c4b;
+  color: #e9edef;
   margin-left: auto;
+  border-bottom-right-radius: 4px;
 }
+
 .bot {
   background: #202c33;
-  color: #fff;
+  color: #e9edef;
   margin-right: auto;
+  border-bottom-left-radius: 4px;
+}
+
+/* Animación suave */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 /* Área de entrada */
 .input {
   display: flex;
-  padding: 8px;
+  padding: 10px;
   background: #202c33;
-  gap: 6px;
+  gap: 8px;
 }
+
 input {
   flex: 1;
   border-radius: 20px;
   border: none;
-  padding: 10px;
+  padding: 10px 14px;
+  background: #111b21;
+  color: #e9edef;
   outline: none;
 }
+
+input::placeholder {
+  color: #8696a0;
+}
+
 button {
   border: none;
   background: #00a884;
+  color: #003f2e;
   border-radius: 20px;
-  padding: 10px 14px;
+  padding: 10px 16px;
+  font-weight: bold;
   cursor: pointer;
 }
 </style>
@@ -140,6 +170,7 @@ async function enviar() {
   const texto = input.value.trim();
   if (!texto) return;
 
+  // Mensaje usuario
   const u = document.createElement("div");
   u.className = "bubble user";
   u.textContent = texto;
@@ -148,6 +179,7 @@ async function enviar() {
   input.value = "";
   log.scrollTop = log.scrollHeight;
 
+  // Indicador escribiendo
   const typing = document.createElement("div");
   typing.className = "bubble bot";
   typing.textContent = "Chen IA está escribiendo…";
