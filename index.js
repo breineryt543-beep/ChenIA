@@ -70,7 +70,7 @@ body {
   flex: 1;
   padding: 10px;
   overflow-y: auto;
-  background-image: url("https://i.imgur.com/8YqGZQp.png");
+  background-image: url("https://imgur.com/zLkG9hX");
   background-size: cover;
 }
 
