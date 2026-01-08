@@ -1,14 +1,11 @@
 export default {
   async fetch(request, env) {
 
-    // Evitar caché
-    const headersNoCache = {
-      "Cache-Control": "no-store, no-cache, must-revalidate, max-age=0",
-      "Pragma": "no-cache",
-      "Expires": "0"
+    const noCache = {
+      "Cache-Control": "no-store"
     };
 
-    // Chat IA
+    // ===== IA =====
     if (request.method === "POST") {
       const { mensaje } = await request.json();
 
@@ -16,24 +13,23 @@ export default {
         "@cf/meta/llama-3-8b-instruct",
         {
           messages: [
-            { role: "system", content: "Eres Chen IA, respondes en español de forma clara y amigable." },
+            { role: "system", content: "Eres Chen IA, amable y clara." },
             { role: "user", content: mensaje }
           ]
         }
       );
 
-      return new Response(
-        JSON.stringify({ respuesta: ai.response }),
-        {
-          headers: {
-            "Content-Type": "application/json",
-            ...headersNoCache
-          }
+      return new Response(JSON.stringify({
+        respuesta: ai.response
+      }), {
+        headers: {
+          "Content-Type": "application/json",
+          ...noCache
         }
-      );
+      });
     }
 
-    // HTML
+    // ===== HTML =====
     return new Response(`
 <!DOCTYPE html>
 <html lang="es">
@@ -43,111 +39,81 @@ export default {
 <title>Chen IA</title>
 
 <style>
-/* Fondo tipo WhatsApp */
 body {
   margin: 0;
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
-  background: linear-gradient(
-    135deg,
-    #0b141a 0%,
-    #111b21 40%,
-    #202c33 100%
-  );
+  font-family: system-ui;
+  background: linear-gradient(270deg,#0b141a,#111b21,#202c33);
+  background-size: 600% 600%;
+  animation: fondo 15s ease infinite;
 }
 
-/* Contenedor principal */
+@keyframes fondo {
+  0%{background-position:0% 50%}
+  50%{background-position:100% 50%}
+  100%{background-position:0% 50%}
+}
+
 .chat {
-  height: 100vh;
   max-width: 500px;
+  height: 100vh;
   margin: auto;
   display: flex;
   flex-direction: column;
   background: #0b141a;
 }
 
-/* Header */
 .header {
-  background: #202c33;
-  color: #e9edef;
-  padding: 12px;
-  text-align: center;
-  font-weight: bold;
-  letter-spacing: 0.5px;
+  background:#202c33;
+  color:#e9edef;
+  padding:12px;
+  text-align:center;
+  font-weight:bold;
 }
 
-/* Área de mensajes */
 #log {
-  flex: 1;
-  padding: 12px;
-  overflow-y: auto;
-  background: linear-gradient(
-    180deg,
-    #0b141a 0%,
-    #111b21 100%
-  );
+  flex:1;
+  padding:10px;
+  overflow-y:auto;
 }
 
-/* Burbujas */
 .bubble {
-  max-width: 78%;
-  padding: 10px 14px;
-  margin-bottom: 8px;
-  border-radius: 12px;
-  line-height: 1.4;
-  word-wrap: break-word;
-  animation: fadeIn 0.2s ease-in;
+  max-width:75%;
+  padding:10px 14px;
+  margin-bottom:8px;
+  border-radius:12px;
 }
 
 .user {
-  background: #005c4b;
-  color: #e9edef;
-  margin-left: auto;
-  border-bottom-right-radius: 4px;
+  background:#005c4b;
+  color:#fff;
+  margin-left:auto;
 }
 
 .bot {
-  background: #202c33;
-  color: #e9edef;
-  margin-right: auto;
-  border-bottom-left-radius: 4px;
+  background:#202c33;
+  color:#fff;
 }
 
-/* Animación suave */
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(4px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-/* Área de entrada */
 .input {
-  display: flex;
-  padding: 10px;
-  background: #202c33;
-  gap: 8px;
+  display:flex;
+  gap:6px;
+  padding:8px;
+  background:#202c33;
 }
 
 input {
-  flex: 1;
-  border-radius: 20px;
-  border: none;
-  padding: 10px 14px;
-  background: #111b21;
-  color: #e9edef;
-  outline: none;
-}
-
-input::placeholder {
-  color: #8696a0;
+  flex:1;
+  border-radius:20px;
+  border:none;
+  padding:10px;
 }
 
 button {
-  border: none;
-  background: #00a884;
-  color: #003f2e;
-  border-radius: 20px;
-  padding: 10px 16px;
-  font-weight: bold;
-  cursor: pointer;
+  border:none;
+  border-radius:20px;
+  padding:10px 14px;
+  background:#00a884;
+  cursor:pointer;
 }
 </style>
 </head>
@@ -158,38 +124,55 @@ button {
   <div id="log"></div>
 
   <div class="input">
-    <input id="msg" placeholder="Escribe un mensaje…" />
+    <button onclick="hablar()">🎤</button>
+    <input id="msg" placeholder="Escribe o habla…" />
     <button onclick="enviar()">➤</button>
   </div>
 </div>
 
 <script>
+const log = document.getElementById("log");
+const input = document.getElementById("msg");
+
+// ===== VOZ A TEXTO =====
+function hablar() {
+  const rec = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+  rec.lang = "es-ES";
+  rec.start();
+  rec.onresult = e => {
+    input.value = e.results[0][0].transcript;
+    enviar();
+  };
+}
+
+// ===== TEXTO A VOZ =====
+function hablarIA(texto) {
+  const voz = new SpeechSynthesisUtterance(texto);
+  voz.lang = "es-ES";
+  speechSynthesis.speak(voz);
+}
+
+// ===== CHAT =====
 async function enviar() {
-  const input = document.getElementById("msg");
-  const log = document.getElementById("log");
   const texto = input.value.trim();
   if (!texto) return;
 
-  // Mensaje usuario
   const u = document.createElement("div");
   u.className = "bubble user";
   u.textContent = texto;
   log.appendChild(u);
-
   input.value = "";
   log.scrollTop = log.scrollHeight;
 
-  // Indicador escribiendo
   const typing = document.createElement("div");
   typing.className = "bubble bot";
   typing.textContent = "Chen IA está escribiendo…";
   log.appendChild(typing);
-  log.scrollTop = log.scrollHeight;
 
   const res = await fetch("/", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ mensaje: texto })
+    method:"POST",
+    headers:{ "Content-Type":"application/json" },
+    body: JSON.stringify({ mensaje:texto })
   });
 
   const data = await res.json();
@@ -199,21 +182,21 @@ async function enviar() {
   b.className = "bubble bot";
   b.textContent = data.respuesta;
   log.appendChild(b);
-
   log.scrollTop = log.scrollHeight;
+
+  hablarIA(data.respuesta);
 }
 
-// Enviar con Enter
-document.getElementById("msg").addEventListener("keydown", e => {
+input.addEventListener("keydown", e => {
   if (e.key === "Enter") enviar();
 });
 </script>
 </body>
 </html>
-    `, {
+`, {
       headers: {
         "Content-Type": "text/html",
-        ...headersNoCache
+        ...noCache
       }
     });
   }
