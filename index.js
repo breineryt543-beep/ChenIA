@@ -1,11 +1,12 @@
 export default {
   async fetch(request, env) {
 
-    // ===== CHAT CON IA REAL =====
+    // ===== MENSAJES =====
     if (request.method === "POST") {
-      const { mensaje } = await request.json();
+      const form = await request.json();
+      const mensaje = form.mensaje || "";
 
-      const aiResponse = await env.AI.run(
+      const ai = await env.AI.run(
         "@cf/meta/llama-3-8b-instruct",
         {
           messages: [
@@ -13,16 +14,13 @@ export default {
               role: "system",
               content: "Eres Chen IA, un asistente amable, claro y respondes en español."
             },
-            {
-              role: "user",
-              content: mensaje
-            }
+            { role: "user", content: mensaje }
           ]
         }
       );
 
       return new Response(
-        JSON.stringify({ respuesta: aiResponse.response }),
+        JSON.stringify({ respuesta: ai.response }),
         { headers: { "Content-Type": "application/json" } }
       );
     }
@@ -32,135 +30,177 @@ export default {
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <title>Chen IA</title>
-  <style>
-    body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-      background-image: url("https://wallpapercave.com/wp/wp10233889.jpg");
-      background-size: cover;
-      background-position: center;
-      background-repeat: no-repeat;
-      background-attachment: fixed;
-      color: #fff;
-    }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chen IA</title>
 
-    .chat {
-      max-width: 520px;
-      height: 90vh;
-      margin: 5vh auto;
-      background: rgba(0,0,0,0.6);
-      backdrop-filter: blur(6px);
-      border-radius: 12px;
-      display: flex;
-      flex-direction: column;
-      padding: 15px;
-    }
+<style>
+body {
+  margin: 0;
+  font-family: system-ui, sans-serif;
+  background: #0b141a;
+}
 
-    h2 {
-      text-align: center;
-      margin: 5px 0 10px 0;
-    }
+/* Fondo tipo WhatsApp */
+.app {
+  background-image: url("https://i.imgur.com/8YqGZQp.png");
+  background-size: cover;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+}
 
-    #log {
-      flex: 1;
-      overflow-y: auto;
-      padding: 10px;
-    }
+/* Contenedor */
+.chat {
+  width: 100%;
+  max-width: 480px;
+  display: flex;
+  flex-direction: column;
+  background: rgba(0,0,0,.2);
+}
 
-    .msg {
-      max-width: 75%;
-      padding: 10px 14px;
-      margin-bottom: 10px;
-      border-radius: 14px;
-      line-height: 1.4;
-      word-wrap: break-word;
-    }
+/* Header */
+.header {
+  background: #202c33;
+  color: #fff;
+  padding: 10px;
+  text-align: center;
+  font-weight: bold;
+}
 
-    .user {
-      background: #22c55e;
-      color: #000;
-      margin-left: auto;
-      border-bottom-right-radius: 4px;
-    }
+/* Mensajes */
+#log {
+  flex: 1;
+  overflow-y: auto;
+  padding: 10px;
+}
 
-    .bot {
-      background: #1f2937;
-      color: #fff;
-      margin-right: auto;
-      border-bottom-left-radius: 4px;
-    }
+.bubble {
+  max-width: 75%;
+  padding: 8px 12px;
+  margin-bottom: 8px;
+  border-radius: 10px;
+  word-wrap: break-word;
+}
 
-    .input-area {
-      display: flex;
-      gap: 6px;
-    }
+.user {
+  background: #005c4b;
+  color: #fff;
+  margin-left: auto;
+  border-bottom-right-radius: 2px;
+}
 
-    input {
-      flex: 1;
-      padding: 10px;
-      border-radius: 20px;
-      border: none;
-      outline: none;
-    }
+.bot {
+  background: #202c33;
+  color: #fff;
+  margin-right: auto;
+  border-bottom-left-radius: 2px;
+}
 
-    button {
-      padding: 10px 16px;
-      border-radius: 20px;
-      border: none;
-      background: #22c55e;
-      font-weight: bold;
-      cursor: pointer;
-    }
-  </style>
+/* Escribiendo */
+.typing {
+  font-size: 13px;
+  opacity: .7;
+  margin-bottom: 8px;
+}
+
+/* Input */
+.input {
+  display: flex;
+  align-items: center;
+  padding: 8px;
+  background: #202c33;
+  gap: 6px;
+}
+
+.input input[type=text] {
+  flex: 1;
+  border-radius: 20px;
+  border: none;
+  padding: 10px;
+  outline: none;
+}
+
+.input button {
+  border: none;
+  background: #00a884;
+  color: #000;
+  padding: 10px 14px;
+  border-radius: 50%;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+/* Responsive PC */
+@media (min-width: 768px) {
+  .chat {
+    margin: 20px;
+    border-radius: 10px;
+    overflow: hidden;
+  }
+}
+</style>
 </head>
+
 <body>
+<div class="app">
   <div class="chat">
-    <h2>🤖 Chen IA</h2>
+    <div class="header">💬 Chen IA</div>
     <div id="log"></div>
 
-    <div class="input-area">
-      <input id="msg" placeholder="Escribe un mensaje..." />
+    <div class="input">
+      📎
+      <input id="msg" type="text" placeholder="Escribe un mensaje…" />
       <button onclick="enviar()">➤</button>
     </div>
   </div>
+</div>
 
-  <script>
-    async function enviar() {
-      const input = document.getElementById("msg");
-      const log = document.getElementById("log");
-      const texto = input.value.trim();
-      if (!texto) return;
+<script>
+async function enviar() {
+  const input = document.getElementById("msg");
+  const log = document.getElementById("log");
+  const texto = input.value.trim();
+  if (!texto) return;
 
-      const userMsg = document.createElement("div");
-      userMsg.className = "msg user";
-      userMsg.textContent = texto;
-      log.appendChild(userMsg);
+  // Mensaje usuario
+  const u = document.createElement("div");
+  u.className = "bubble user";
+  u.textContent = texto;
+  log.appendChild(u);
+  input.value = "";
 
-      input.value = "";
-      log.scrollTop = log.scrollHeight;
+  // Escribiendo…
+  const typing = document.createElement("div");
+  typing.className = "typing";
+  typing.textContent = "Chen IA está escribiendo…";
+  log.appendChild(typing);
+  log.scrollTop = log.scrollHeight;
 
-      const res = await fetch("/", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ mensaje: texto })
-      });
+  const res = await fetch("/", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ mensaje: texto })
+  });
 
-      const data = await res.json();
+  const data = await res.json();
+  typing.remove();
 
-      const botMsg = document.createElement("div");
-      botMsg.className = "msg bot";
-      botMsg.textContent = data.respuesta;
-      log.appendChild(botMsg);
+  // Respuesta IA
+  const b = document.createElement("div");
+  b.className = "bubble bot";
+  b.textContent = data.respuesta;
+  log.appendChild(b);
+  log.scrollTop = log.scrollHeight;
+}
 
-      log.scrollTop = log.scrollHeight;
-    }
-  </script>
+// Enviar con Enter
+document.getElementById("msg").addEventListener("keydown", e => {
+  if (e.key === "Enter") enviar();
+});
+</script>
 </body>
 </html>
-    `, {
-      headers: { "Content-Type": "text/html" }
-    });
+    `, { headers: { "Content-Type": "text/html" } });
   }
 };
