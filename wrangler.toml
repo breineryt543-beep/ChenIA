@@ -1,4 +1,4 @@
-name = "chen-ia"
+name = 'spring-resonance-73fd'
 compatibility_date = "2026-02-05"
 
 # Definimos la ruta de los archivos estáticos (si están en la raíz o en una carpeta como ./dist)
