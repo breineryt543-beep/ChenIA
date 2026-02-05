@@ -1,12 +1,6 @@
-name = 'spring-resonance-73fd'
+name = "chen-ia"
 compatibility_date = "2026-02-05"
 
-# Aquí es donde configuras el directorio de los archivos estáticos
-[build]
-  command = "npm run build"  # Si no tienes una construcción previa, puedes dejar esto vacío
-
-[[deploy]]
-  # Aquí es donde se especifica la ruta de los archivos estáticos
-  assets = { directory = "./" }
-
-# Puedes añadir más configuraciones si es necesario, pero no necesitas "deploy" como campo.
+# Definimos la ruta de los archivos estáticos (si están en la raíz o en una carpeta como ./dist)
+[[assets]]
+  directory = "./"  # Cambia a "./dist" si tus archivos están en la carpeta dist
