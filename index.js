@@ -17,7 +17,6 @@ function addMessageToChat(message, sender) {
 }
 
 function getChenIAResponse(userInput) {
-    // Respuestas simples para simular la interacción
     const responses = [
         "Estoy aprendiendo mucho sobre ti.",
         "¡Eso suena interesante! Cuéntame más.",
@@ -28,7 +27,6 @@ function getChenIAResponse(userInput) {
 
     const randomResponse = responses[Math.floor(Math.random() * responses.length)];
 
-    // Simular una respuesta después de 1 segundo
     setTimeout(() => {
         addMessageToChat(randomResponse, 'ia');
     }, 1000);
