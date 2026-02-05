@@ -1,0 +1,9 @@
+name = "chen-ia"
+compatibility_date = "2026-02-05"
+
+[build]
+  command = "npm run build"  # O deja vacío si no necesitas precompilar nada
+
+[deploy]
+  # Carpeta que contiene los archivos estáticos (por ejemplo, la carpeta 'dist' o 'public')
+  assets = { directory = "./" }  # Asumiendo que todos tus archivos están en la raíz
