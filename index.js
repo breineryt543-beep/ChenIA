@@ -2,7 +2,7 @@ document.getElementById('submitBtn').addEventListener('click', async function() 
     const inputText = document.getElementById('inputText').value;
 
     if(inputText) {
-        const response = await fetch('https://api.ejemplo-ia.com/consultar', { // Cambia por la URL de tu IA
+        const response = await fetch('https://api.ejemplo-ia.com/consultar', {  // URL de la IA
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -11,6 +11,6 @@ document.getElementById('submitBtn').addEventListener('click', async function() 
         });
 
         const data = await response.json();
-        document.getElementById('response').innerText = data.respuesta; // Mostrar la respuesta de la IA
+        document.getElementById('response').innerText = data.respuesta;  // Muestra la respuesta
     }
 });
