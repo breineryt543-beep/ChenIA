@@ -1,9 +1,12 @@
 name = "chen-ia"
 compatibility_date = "2026-02-05"
 
+# Aquí es donde configuras el directorio de los archivos estáticos
 [build]
-  command = "npm run build"  # O deja vacío si no necesitas precompilar nada
+  command = "npm run build"  # Si no tienes una construcción previa, puedes dejar esto vacío
 
-[deploy]
-  # Carpeta que contiene los archivos estáticos (por ejemplo, la carpeta 'dist' o 'public')
-  assets = { directory = "./" }  # Asumiendo que todos tus archivos están en la raíz
+[[deploy]]
+  # Aquí es donde se especifica la ruta de los archivos estáticos
+  assets = { directory = "./" }
+
+# Puedes añadir más configuraciones si es necesario, pero no necesitas "deploy" como campo.
