@@ -3,4 +3,4 @@ compatibility_date = "2026-02-05"
 
 # Definimos la ruta de los archivos estáticos (si están en la raíz o en una carpeta como ./dist)
 [[assets]]
-  directory = "./"  # Cambia a "./dist" si tus archivos están en la carpeta dist
+  directory = "./main"  # Cambia a "./dist" si tus archivos están en la carpeta dist
