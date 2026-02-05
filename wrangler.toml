@@ -1,5 +1,5 @@
-name = 'spring-resonance-73fd'
+name = "spring-resonance-73fd"  
 compatibility_date = "2026-02-05"
 
 [[assets]]
-  directory = "./"  # Si los archivos están en la raíz
+  directory = "./"  # El directorio donde se encuentran tus archivos estáticos (index.html, index.js, styles.css)
